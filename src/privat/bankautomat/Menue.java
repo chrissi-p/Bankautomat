@@ -1,7 +1,9 @@
 package privat.bankautomat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.NumberFormat;
-import java.util.Scanner;
 
 public class Menue {
 	
@@ -15,10 +17,14 @@ public class Menue {
 		
 		do{
 			printMenue();
-			choose();
+			try {
+				choose();
+			} catch (NumberFormatException e) {
+				System.out.println("ERROR: Falsches Zahlenformat");
+			} catch (IOException e) {
+				System.out.println("ERROR: Eingabe Fehler");
+			}
 		}while(run);
-		
-		
 	}
 	
 	private static void printMenue()
@@ -32,13 +38,14 @@ public class Menue {
 		System.out.println("6. Beenden");
 	}
 	
-	private static void choose()
+	private static void choose() throws NumberFormatException, IOException
 	{
 		System.out.print("-> ");
 		
-		Scanner s = new Scanner(System.in);
-		int wahl = s.nextInt();
+		BufferedReader bR = new BufferedReader( new InputStreamReader( System.in ) );
 		
+		int wahl = Integer.parseInt(bR.readLine());
+
 		switch(wahl)
 		{
 			case 1:
@@ -47,7 +54,7 @@ public class Menue {
 				
 			case 2:
 				System.out.print("-> Wieviel möchten sie abheben: ");
-				double auszahlen = s.nextDouble();
+				double auszahlen = Double.parseDouble(bR.readLine());
 				if(myKonto.auszahlen(auszahlen)){
 					System.out.println("Sie haben " + NumberFormat.getCurrencyInstance().format(auszahlen) + " ahgehoben");
 					myKonto.print();	
@@ -58,7 +65,7 @@ public class Menue {
 				
 			case 3:
 				System.out.print("-> Wieviel möchten sie einzahlen: ");
-				double einzahlen = s.nextDouble();
+				double einzahlen = Double.parseDouble(bR.readLine());
 				if(myKonto.einzahlen(einzahlen)){
 					System.out.println("Sie haben " + NumberFormat.getCurrencyInstance().format(einzahlen) + " eingezahlt");
 					myKonto.print();
@@ -85,7 +92,7 @@ public class Menue {
 		}
 	}
 	
-	private static void admin()
+	private static void admin() throws IOException
 	{
 		System.out.println("**** Adminmenue ****");
 		System.out.println("Kontonummer: " + myKonto.getNummer());
@@ -96,14 +103,28 @@ public class Menue {
 		System.out.println("5. Zurück zum Menü");
 		System.out.print("-> ");
 		
-		Scanner s = new Scanner(System.in);
-		String s_Wahl = s.nextLine();
-		int wahl = Integer.parseInt(s_Wahl);
+		BufferedReader bR = new BufferedReader( new InputStreamReader( System.in ) );
+		
+		int wahl = 0;
+		
+		boolean ok = true;
+		do{
+			ok = true;
+			try {
+				wahl = Integer.parseInt(bR.readLine());
+			} catch (NumberFormatException e) {
+				System.err.println("ERROR: Falsches Zahlenformat");
+				ok = false;
+			} catch (IOException e) {
+				System.err.println("ERROR: Eingabefehler");
+			}
+		} while(!ok);
+
 		
 		switch(wahl)
 		{
 			case 1:
-				if(myKonto.setBesitzer(s.nextLine())){
+				if(myKonto.setBesitzer(bR.readLine())){
 					System.out.println("-> Der Kontobesitzer wurde in \"" + myKonto.getBesitzer() + "\" geändert.");
 				}else{
 					System.err.println("-> Der Besitzer konnte nicht geändert werden.");
@@ -111,7 +132,7 @@ public class Menue {
 				break;
 				
 			case 2:
-				if(myKonto.setLimit(s.nextDouble())){
+				if(myKonto.setLimit(Double.parseDouble(bR.readLine()))){
 					System.out.println("-> Das Limit wurde auf " + NumberFormat.getCurrencyInstance().format(myKonto.getLimit()) + " geändert.");
 				}else{
 					System.err.println("-> Das Limit konnte nicht geändert werden.");
@@ -119,7 +140,7 @@ public class Menue {
 				break;
 				
 			case 3:
-				if(myKonto.setZinssatz(s.nextDouble())){
+				if(myKonto.setZinssatz(Double.parseDouble(bR.readLine()))){
 					System.out.println("-> Der Zinssatz wurde auf " + myKonto.getZinssatz() + "% geändert.");
 				}
 				break;
